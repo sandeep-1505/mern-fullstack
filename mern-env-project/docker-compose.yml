@@ -1,0 +1,66 @@
+services:
+  # ---------------------------------------------------------------------------
+  # Node.js Application Service
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mern_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    # Load environment variables securely from .env file via Compose
+    env_file:
+      - .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:5000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - mern_network
+
+  # ---------------------------------------------------------------------------
+  # MongoDB Database Service
+  # ---------------------------------------------------------------------------
+  mongo:
+    image: mongo:6.0
+    container_name: mern_mongo
+    restart: unless-stopped
+    # MongoDB is NOT exposed publicly on host ports for security
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - mern_network
+
+# -----------------------------------------------------------------------------
+# Persistent Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  mongo_data:
+    name: mern_mongo_data
+
+# -----------------------------------------------------------------------------
+# Isolated Docker Network
+# -----------------------------------------------------------------------------
+networks:
+  mern_network:
+    name: mern_env_network
+    driver: bridge
