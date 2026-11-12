@@ -1,4 +1,4 @@
-`# MERN Fullstack on Docker Compose & Google Kubernetes Engine (GKE)
+# MERN Fullstack on Docker Compose & Google Kubernetes Engine (GKE)
 
 A containerized **Node.js + Express + MongoDB** microservice built to demonstrate **secure configuration management** (zero hardcoded or leaked secrets) — runnable locally with **Docker Compose** and deployed to production on **Google Cloud Kubernetes Engine (GKE Autopilot)**.
 
@@ -17,6 +17,44 @@ At its core, this project is a production-hardened Express API ([`server.js`](me
 - **Graceful shutdown & resilient DB connection**: Automatically retries MongoDB connections during startup and cleanly closes HTTP and database connections on `SIGTERM` / `SIGINT`.
 
 > Looking for the local Docker Compose deep-dive? See [`mern-env-project/README.md`](mern-env-project/README.md).
+
+---
+
+## Deployed Cloud Cluster (GCP GKE Autopilot)
+
+This project is deployed to a live **Google Kubernetes Engine (GKE) Autopilot** cluster on Google Cloud Platform:
+
+| Setting | Value |
+| :--- | :--- |
+| **GCP Project** | `circuitrank` |
+| **Region** | `asia-south1` |
+| **Cluster Name** | `mern-prod-cluster` (GKE Autopilot, `1.36.4-gke.2377000`, `regular` channel) |
+| **Container Registry** | `asia-south1-docker.pkg.dev/circuitrank/mern-repo/mern-app:v1.0.0` |
+| **Kubernetes Namespace** | `mern-prod` (Pod Security Standard: `restricted`) |
+| **Public LoadBalancer** | `http://34.100.169.199` (`service/mern-app-svc`, port `80` → `5000`) |
+
+### What Is Running in the Cluster
+
+- **App tier (`deployment/mern-app`)**: 2 running pods (`250m` CPU / `512Mi` memory each, non-root `UID 1000`, read-only root filesystem), protected by `poddisruptionbudget/mern-app-pdb` (`minAvailable: 1`) and autoscaled between `2` and `6` replicas by `hpa/mern-app-hpa` at `70%` CPU.
+- **Database tier (`statefulset/mongo`)**: Authenticated `mongo:6.0` (`mongo-0`, `500m` CPU / `1Gi` memory) reachable internally via `mongo-0.mongo-headless.mern-prod.svc.cluster.local:27017` and backed by a bound `10Gi` `standard-rwo` PersistentVolumeClaim (`mongo-data-mongo-0`).
+- **Network isolation (`NetworkPolicy`)**: `mongo-allow-app-only` restricts port `27017` so only `mern-app` pods can reach MongoDB.
+
+### Connect & Check the Live Cluster
+
+```bash
+# 1. Fetch cluster credentials for kubectl
+gcloud container clusters get-credentials mern-prod-cluster \
+  --region=asia-south1 \
+  --project=circuitrank
+
+# 2. Inspect running pods, services, storage, autoscaler, and PDB
+kubectl -n mern-prod get pods,svc,pvc,hpa,pdb
+
+# 3. Test the live public endpoints
+curl http://34.100.169.199/
+curl http://34.100.169.199/health
+curl http://34.100.169.199/livez
+```
 
 ---
 
