@@ -1,4 +1,4 @@
-# MERN Fullstack on Docker Compose & Google Kubernetes Engine (GKE)
+`# MERN Fullstack on Docker Compose & Google Kubernetes Engine (GKE)
 
 A containerized **Node.js + Express + MongoDB** microservice built to demonstrate **secure configuration management** (zero hardcoded or leaked secrets) — runnable locally with **Docker Compose** and deployed to production on **Google Cloud Kubernetes Engine (GKE Autopilot)**.
 
