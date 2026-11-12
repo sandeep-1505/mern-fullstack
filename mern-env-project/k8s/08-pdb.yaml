@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mern-app-pdb
+  namespace: mern-prod
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mern-app

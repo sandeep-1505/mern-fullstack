@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mern-app-svc
+  namespace: mern-prod
+  labels:
+    app: mern-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: mern-app
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http

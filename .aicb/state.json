@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "thoughts": [],
+  "pinnedFiles": [
+    {
+      "path": "/home/voldemort/Downloads/mern-fullstack-main/README.md",
+      "pinnedBy": "auto:editor",
+      "note": "Project README",
+      "pinnedAt": 1794489011144,
+      "auto": "spec",
+      "expiresAt": 1794492611143,
+      "role": "spec"
+    },
+    {
+      "path": "/home/voldemort/Downloads/mern-fullstack-main/mern-env-project/README.md",
+      "pinnedBy": "auto:spec",
+      "note": "Project README (mern-env-project)",
+      "pinnedAt": 1794486904738,
+      "auto": "spec",
+      "role": "spec"
+    }
+  ],
+  "skills": [],
+  "updatedAt": 1794489011144
+}
